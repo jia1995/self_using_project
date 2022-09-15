@@ -8,13 +8,19 @@ impl DateTime {
         DateTime(year, month, day, hour, minute, second, millis, macros, nanos)
     }
 
-    pub fn from(time: i64, time_zone:u8) -> Self {
+    pub fn time_zone(time:DateTime, time_zone:i8) -> Self {
+        let (mut _year,mut _month,mut _day,mut _hour) = (time.0, time.1, time.2, time.3);
+        let mut flag = false;
+
+        time
+    }
+
+    fn positive(time:i64) -> Self {
         let mut seconds = time;
         let secs = seconds%60;
         seconds /= 60;
         let mins = seconds%60;
         seconds /= 60;
-        seconds += time_zone as i64;
         let hour = seconds % 24;
         seconds /= 24;
         let mut year = 1969;
@@ -64,9 +70,21 @@ impl DateTime {
         DateTime(year as u16, month as u8, day as u8, hour as u8, mins as u8, secs as u8, 0,0,0)
     }
 
+    fn nagative(time:i64) -> Self{
+        DateTime(0,0,0,0,0,0,0,0,0)
+    }
+
+    pub fn from(time: i64, time_zone:u8) -> Self {
+        if time >= 0 {
+            Self::positive(time)
+        } else{
+            Self::nagative(time)
+        }
+    }
+
     pub fn from_millis(time: i64, time_zone:u8) -> Self {
         let millis = time%1000;
-        let mut time = Self::from((time/1000), time_zone);
+        let mut time = Self::from(time/1000, time_zone);
         time.6 = millis as u8;
         time
     }
@@ -74,7 +92,7 @@ impl DateTime {
     pub fn from_macros(time: i64, time_zone:u8) -> Self {
         let macros = time%1_000;
         let millis = (time/1_000)%1_000;
-        let mut time = Self::from((time/1_000_000), time_zone);
+        let mut time = Self::from(time/1_000_000, time_zone);
         time.6 = millis as u8;
         time.7 = macros as u8;
         time
@@ -84,7 +102,7 @@ impl DateTime {
         let nanos = time%1_000;
         let macros = (time/1_000)%1_000;
         let millis = (time/1_000_000)%1_000;
-        let mut time = Self::from((time/1_000_000_000), time_zone);
+        let mut time = Self::from(time/1_000_000_000, time_zone);
         time.6 = millis as u8;
         time.7 = macros as u8;
         time.8 = nanos as u8;
