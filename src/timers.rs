@@ -260,6 +260,44 @@ impl DateTime {
         datetime.8 = nanos as u16;
         datetime
     }
+
+    pub fn to_seconds(self) -> i64 {
+        self.to_nanos()/1000000000
+    }
+
+    pub fn to_millis(self) -> i64 {
+        self.to_nanos()/1000000
+    }
+
+    pub fn to_macros(self) -> i64 {
+        self.to_nanos()/1000        
+    }
+
+    pub fn to_nanos(self) -> i64 {
+        let _is_leap = Self::leap_year(self.0);
+        let mut result:i64 = (((self.2-1) as i64)*3600*24 as i64 + (self.3 as i64)*3600 + (self.4 as i64)*60 as i64 + self.5 as i64).into();
+        let _month_day = Self::month_daily(_is_leap);
+        let mut month = 1;
+        for i in _month_day {
+            if month < self.1 {
+                month += 1;
+                result += (i as i64)*3600*24;
+            }
+        }
+        let mut year = (self.0 as i64) - 1970;
+        let num400year = year / 400;
+        year %= 400;
+        result += 146097*3600*24*num400year;
+        let num100year = year / 100;
+        year %= 100;
+        result += 36524 * 3600*24*num100year;
+        let num4year = year/4;
+        year%=4;
+        result += 1461*3600*24*num4year + year*365*3600*24;
+        result*= 1000000000;
+        result += (self.6  as i64)*1000000 + (self.7 as i64)*1000 + self.8 as i64;
+        result
+    }
 }
 
 /// Get current nanos time.
