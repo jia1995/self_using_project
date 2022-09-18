@@ -1,7 +1,8 @@
 //! This lib is aiming at generate current time as i64.
 use std::time::SystemTime;
+use std::fmt::*;
 #[derive(Debug)]
-pub struct DateTime (i16,u8,u8,u8,u8,u8,u16,u16,u16);
+pub struct DateTime (i32,u8,u8,u8,u8,u8,u16,u16,u16);
 
 impl Clone for DateTime {
     fn clone(&self) -> Self { todo!() }
@@ -11,12 +12,18 @@ impl Copy for DateTime {
 
 }
 
+impl Display for DateTime {
+    fn fmt(&self, f: &mut Formatter) -> Result {
+        write!(f, "{}-{:02?}-{:02?} {:02?}:{:02?}:{:02?}.{:03?}{:03?}{:03?}", self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8)
+    }
+}
+
 impl DateTime {
-    pub fn new(year:i16, month:u8, day:u8, hour:u8, minute:u8, second:u8, millis:u16, macros:u16, nanos:u16) -> Self {
+    pub fn new(year:i32, month:u8, day:u8, hour:u8, minute:u8, second:u8, millis:u16, macros:u16, nanos:u16) -> Self {
         DateTime(year, month, day, hour, minute, second, millis, macros, nanos)
     }
 
-    fn leap_year(_year:i16) -> bool {
+    fn leap_year(_year:i32) -> bool {
         (_year%4==0 && _year%100!=0) || _year%400==0
     }
 
@@ -160,7 +167,7 @@ impl DateTime {
             year += num1year + 1;
             year = 1970 - year;
             let mut _day = 0;
-            let mut reverse_month_day = Self::month_daily(Self::leap_year(year as i16));
+            let mut reverse_month_day = Self::month_daily(Self::leap_year(year as i32));
             reverse_month_day.reverse();
             month = 0;
             for i in reverse_month_day {
@@ -174,7 +181,7 @@ impl DateTime {
                 }
             }
         }
-        DateTime(year as i16,month as u8,day as u8,hour as u8,minute as u8,second as u8,0,0,0)
+        DateTime(year as i32,month as u8,day as u8,hour as u8,minute as u8,second as u8,0,0,0)
     }
 
     pub fn from_millis(time: i64) -> Self {
