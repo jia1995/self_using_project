@@ -2,6 +2,7 @@
 use std::time::SystemTime;
 use std::fmt::*;
 #[derive(Debug)]
+#[warn(unused_assignments)]
 pub struct DateTime (i32,u8,u8,u8,u8,u8,u16,u16,u16);
 
 impl Clone for DateTime {
@@ -78,7 +79,8 @@ impl DateTime {
     }
 
     pub fn from(time: i64) -> Self {
-        let (mut year,mut month,mut day,mut hour,mut minute,mut second) = (0,0,0,0,0,0);
+        let (mut year,mut day) = (0, 0);
+        let (mut month,hour,minute,second):(i64,i64,i64,i64);
         let mut seconds = time;
         if seconds >= 0 {
             second = seconds%60;
@@ -173,7 +175,7 @@ impl DateTime {
             for i in reverse_month_day {
                 if _day + (i as i64) < seconds{
                     month += 1;
-                    _day +=(i as i64);
+                    _day +=i as i64;
                 }else{
                     day = (i as i64) - (seconds - _day);
                     month = 12 - month;
@@ -186,7 +188,7 @@ impl DateTime {
 
     pub fn from_millis(time: i64) -> Self {
         let mut seconds = time;
-        let mut millis;
+        let millis;
         if seconds > 0{
             millis = seconds%1000;
             seconds /= 1000;
@@ -206,7 +208,7 @@ impl DateTime {
 
     pub fn from_macros(time: i64) -> Self {
         let mut seconds = time;
-        let (mut millis, mut macros);
+        let (millis, macros);
         if seconds > 0{
             macros = seconds%1000;
             seconds /= 1000;
@@ -234,7 +236,7 @@ impl DateTime {
 
     pub fn from_nanos(time: i64) -> Self {
         let mut seconds = time;
-        let (mut millis, mut macros, mut nanos);
+        let (millis, macros, nanos);
         if seconds > 0{
             nanos = seconds %1000;
             seconds /= 1000;
