@@ -183,6 +183,9 @@ impl DateTime {
                 }
             }
         }
+        if year > i32::MAX.into() || year < i32::MIN.into() {
+            panic!("Input time is out of bounds!");
+        }
         DateTime(year as i32,month as u8,day as u8,hour as u8,minute as u8,second as u8,0,0,0)
     }
 
@@ -347,7 +350,6 @@ pub fn current_time_as_millis() -> i64 {
 /// let cur = current_time_as_secs();
 /// ```
 pub fn current_time_as_secs() -> i64 {
-    println!("{:?}", SystemTime::now());
     match SystemTime::now().duration_since(SystemTime::UNIX_EPOCH) {
         Ok(t) => t.as_secs() as i64,
         Err(e) => panic!("Time is illegal!! Error msg {}.", e),
