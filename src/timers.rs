@@ -189,16 +189,15 @@ impl DateTime {
             seconds /= 1000;
         }else{
             seconds *= -1;
-            millis = 1000 - seconds%1000;
+            millis = (1000 - seconds%1000)%1000;
             seconds /= 1000;
             if millis > 0 {
                 seconds += 1;
             }
             seconds *= -1;
         }
-        let mut datetime = Self::from(seconds);
-        datetime.millis = millis as u16;
-        datetime
+        let datetime = Self::from(seconds);
+        DateTime{millis : millis as u16, ..datetime}
     }
 
     pub fn from_macros(time: i64) -> Self {
@@ -211,22 +210,20 @@ impl DateTime {
             seconds /= 1000;
         }else{
             seconds *= -1;
-            macros = 1000 - seconds%1000;
+            macros = (1000 - seconds%1000)%1000;
             seconds /= 1000;
             if macros > 0 {
                 seconds += 1;
             }
-            millis = 1000 - seconds%1000;
+            millis = (1000 - seconds%1000)%1000;
             seconds /= 1000;
             if millis > 0 {
                 seconds += 1;
             }
             seconds *= -1;
         }
-        let mut datetime = Self::from(seconds);
-        datetime.millis = millis as u16;
-        datetime.macros = macros as u16;
-        datetime
+        let datetime = Self::from(seconds);
+        DateTime{millis : millis as u16, macros : macros as u16, ..datetime}
     }
 
     pub fn from_nanos(time: i64) -> Self {
@@ -241,28 +238,25 @@ impl DateTime {
             seconds /= 1000;
         }else{
             seconds *= -1;
-            nanos = 1000 - seconds%1000;
+            nanos = (1000 - seconds%1000)%1000;
             seconds /= 1000;
             if nanos > 0 {
                 seconds += 1;
             }
-            macros = 1000 - seconds%1000;
+            macros = (1000 - seconds%1000)%1000;
             seconds /= 1000;
             if macros > 0 {
                 seconds += 1;
             }
-            millis = 1000 - seconds%1000;
+            millis = (1000 - seconds%1000)%1000;
             seconds /= 1000;
             if millis > 0 {
                 seconds += 1;
             }
             seconds *= -1;
         }
-        let mut datetime = Self::from(seconds);
-        datetime.millis = millis as u16;
-        datetime.macros = macros as u16;
-        datetime.nanos = nanos as u16;
-        datetime
+        let datetime = Self::from(seconds);
+        DateTime{millis : millis as u16, macros : macros as u16, nanos : nanos as u16, ..datetime}
     }
 
     pub fn to_seconds(self) -> i64 {
