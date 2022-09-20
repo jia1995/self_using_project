@@ -1,27 +1,19 @@
 //! This lib is aiming at generate current time as i64.
 use std::time::SystemTime;
 use std::fmt::*;
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[warn(unused_assignments)]
-pub struct DateTime (i32,u8,u8,u8,u8,u8,u16,u16,u16);
-
-impl Clone for DateTime {
-    fn clone(&self) -> Self { todo!() }
-}
-
-impl Copy for DateTime {
-
-}
+pub struct DateTime {year:i32,month:u8,day:u8,hour:u8,minute:u8,second:u8,millis:u16,macros:u16,nanos:u16}
 
 impl Display for DateTime {
     fn fmt(&self, f: &mut Formatter) -> Result {
-        write!(f, "{}-{:02?}-{:02?} {:02?}:{:02?}:{:02?}.{:03?}{:03?}{:03?}", self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8)
+        write!(f, "{}-{:02?}-{:02?} {:02?}:{:02?}:{:02?}.{:03?}{:03?}{:03?}", self.year, self.month, self.day, self.hour, self.minute, self.second, self.millis, self.macros, self.nanos)
     }
 }
 
 impl DateTime {
     pub fn new(year:i32, month:u8, day:u8, hour:u8, minute:u8, second:u8, millis:u16, macros:u16, nanos:u16) -> Self {
-        DateTime(year, month, day, hour, minute, second, millis, macros, nanos)
+        DateTime{year, month, day, hour, minute, second, millis, macros, nanos}
     }
 
     fn leap_year(_year:i32) -> bool {
@@ -37,7 +29,7 @@ impl DateTime {
     }
 
     pub fn time_zone(self, time_zone:i8) -> Self {
-        let (mut _year,mut _month,mut _day,mut _hour) = (self.0, self.1 as i8, self.2 as i8, self.3 as i8);
+        let (mut _year,mut _month,mut _day,mut _hour) = (self.year, self.month as i8, self.day as i8, self.hour as i8);
         let _is_leap = Self::leap_year(_year);
         let _month_day = Self::month_daily(_is_leap);
         if time_zone < 0 {
@@ -75,7 +67,7 @@ impl DateTime {
                 _month = 1;
             }
         }
-        DateTime(_year, _month as u8, _day as u8, _hour as u8, self.4, self.5, self.6, self.7, self.8)
+        DateTime{year: _year, month:_month as u8, day:_day as u8, hour:_hour as u8, ..self}
     }
 
     pub fn from(time: i64) -> Self {
@@ -186,7 +178,7 @@ impl DateTime {
         if year > i32::MAX.into() || year < i32::MIN.into() {
             panic!("Input time is out of bounds!");
         }
-        DateTime(year as i32,month as u8,day as u8,hour as u8,minute as u8,second as u8,0,0,0)
+        DateTime{year:year as i32,month:month as u8,day:day as u8,hour:hour as u8,minute:minute as u8,second:second as u8,millis:0,macros:0,nanos:0}
     }
 
     pub fn from_millis(time: i64) -> Self {
@@ -205,7 +197,7 @@ impl DateTime {
             seconds *= -1;
         }
         let mut datetime = Self::from(seconds);
-        datetime.6 = millis as u16;
+        datetime.millis = millis as u16;
         datetime
     }
 
@@ -232,8 +224,8 @@ impl DateTime {
             seconds *= -1;
         }
         let mut datetime = Self::from(seconds);
-        datetime.6 = millis as u16;
-        datetime.7 = macros as u16;
+        datetime.millis = millis as u16;
+        datetime.macros = macros as u16;
         datetime
     }
 
@@ -267,9 +259,9 @@ impl DateTime {
             seconds *= -1;
         }
         let mut datetime = Self::from(seconds);
-        datetime.6 = millis as u16;
-        datetime.7 = macros as u16;
-        datetime.8 = nanos as u16;
+        datetime.millis = millis as u16;
+        datetime.macros = macros as u16;
+        datetime.nanos = nanos as u16;
         datetime
     }
 
@@ -286,17 +278,17 @@ impl DateTime {
     }
 
     pub fn to_nanos(self) -> i64 {
-        let _is_leap = Self::leap_year(self.0);
-        let mut result:i64 = (((self.2-1) as i64)*3600*24 as i64 + (self.3 as i64)*3600 + (self.4 as i64)*60 as i64 + self.5 as i64).into();
+        let _is_leap = Self::leap_year(self.year);
+        let mut result:i64 = (((self.day-1) as i64)*3600*24 as i64 + (self.hour as i64)*3600 + (self.minute as i64)*60 as i64 + self.second as i64).into();
         let _month_day = Self::month_daily(_is_leap);
         let mut month = 1;
         for i in _month_day {
-            if month < self.1 {
+            if month < self.month {
                 month += 1;
                 result += (i as i64)*3600*24;
             }
         }
-        let mut year = (self.0 as i64) - 1970;
+        let mut year = (self.year as i64) - 1970;
         let num400year = year / 400;
         year %= 400;
         result += 146097*3600*24*num400year;
@@ -307,7 +299,7 @@ impl DateTime {
         year%=4;
         result += 1461*3600*24*num4year + year*365*3600*24;
         result*= 1000000000;
-        result += (self.6  as i64)*1000000 + (self.7 as i64)*1000 + self.8 as i64;
+        result += (self.millis  as i64)*1000000 + (self.macros as i64)*1000 + self.nanos as i64;
         result
     }
 }
