@@ -296,6 +296,27 @@ impl DateTime {
         result += (self.millis  as i64)*1000000 + (self.macros as i64)*1000 + self.nanos as i64;
         result
     }
+
+    pub fn from_string(time: &str) -> Self {
+        let vec1:Vec<&str> = (*time).split(&[' ', '-', '.', ':'][..]).collect();
+        let size = vec1.len();
+        let mut vec_i32:Vec<i32> = Vec::new();
+        if size == 7 {
+            for i in vec1 {
+                vec_i32.push(i.parse::<i32>().unwrap());
+            }
+        } else if size == 8 {
+            for i in vec1 {
+                if i!= "" {
+                    vec_i32.push(i.parse::<i32>().unwrap());
+                }
+            }
+            vec_i32[0] *= -1;
+        }else{
+            panic!("The input str {} is illegal!", &time);
+        }
+        DateTime{year:vec_i32[0],month:vec_i32[1] as u8,day:vec_i32[2] as u8,hour:vec_i32[3] as u8,minute:vec_i32[4] as u8,second:vec_i32[5] as u8,millis:(vec_i32[6]/1_000_000) as u16,macros:((vec_i32[6]/1_000)%1_000) as u16,nanos:(vec_i32[6]%1_000) as u16}
+    }
 }
 
 /// Get current nanos time.
