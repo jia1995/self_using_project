@@ -3,17 +3,36 @@ use std::time::SystemTime;
 use std::fmt::*;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[warn(unused_assignments)]
-pub struct DateTime {year:i32,month:u8,day:u8,hour:u8,minute:u8,second:u8,millis:u16,macros:u16,nanos:u16}
+pub struct DateTime {year:i32,month:u8,day:u8,hour:u8,minute:u8,second:u8,millis:u16,macros:u16,nanos:u16, time_zone:i8}
 
 impl Display for DateTime {
     fn fmt(&self, f: &mut Formatter) -> Result {
-        write!(f, "{}-{:02?}-{:02?} {:02?}:{:02?}:{:02?}.{:03?}{:03?}{:03?}", self.year, self.month, self.day, self.hour, self.minute, self.second, self.millis, self.macros, self.nanos)
+        let mut pos:String = String::from("UTC");
+        if self.time_zone > 0 {
+            pos.push('+');
+        }
+        write!(f, "{}-{:02?}-{:02?} {:02?}:{:02?}:{:02?}.{:03?}{:03?}{:03?}{}{}", self.year, self.month, self.day, self.hour, self.minute, self.second, self.millis, self.macros, self.nanos, pos, self.time_zone)
     }
 }
 
 impl DateTime {
+
+    fn check_time_zone(self, time_zone:i8) -> bool {
+        match time_zone {
+            x if -12<x && x<12 => true,
+            _ => false,
+        }
+    }
+
+    pub fn now() -> Self {
+        match SystemTime::now().duration_since(SystemTime::UNIX_EPOCH) {
+            Ok(t) => Self::from_nanos(t.as_nanos() as i64),
+            Err(e) => panic!("Time is illegal!! Error msg {}.", e),
+        }
+    }
+
     pub fn new(year:i32, month:u8, day:u8, hour:u8, minute:u8, second:u8, millis:u16, macros:u16, nanos:u16) -> Self {
-        DateTime{year, month, day, hour, minute, second, millis, macros, nanos}
+        DateTime{year, month, day, hour, minute, second, millis, macros, nanos, time_zone:0}
     }
 
     fn leap_year(_year:i32) -> bool {
@@ -29,11 +48,15 @@ impl DateTime {
     }
 
     pub fn time_zone(self, time_zone:i8) -> Self {
+        if !self.check_time_zone(time_zone) {
+            eprintln!("The time zone {} is illegal!", time_zone);
+            return self;
+        }
         let (mut _year,mut _month,mut _day,mut _hour) = (self.year, self.month as i8, self.day as i8, self.hour as i8);
         let _is_leap = Self::leap_year(_year);
         let _month_day = Self::month_daily(_is_leap);
         if time_zone < 0 {
-            _hour += time_zone;
+            _hour += time_zone-self.time_zone;
             let mut _minus_one = 0;
             if _hour < 0 {
                 _minus_one = 1;
@@ -67,7 +90,7 @@ impl DateTime {
                 _month = 1;
             }
         }
-        DateTime{year: _year, month:_month as u8, day:_day as u8, hour:_hour as u8, ..self}
+        DateTime{year: _year, month:_month as u8, day:_day as u8, hour:_hour as u8, time_zone, ..self}
     }
 
     pub fn from(time: i64) -> Self {
@@ -178,7 +201,7 @@ impl DateTime {
         if year > i32::MAX.into() || year < i32::MIN.into() {
             panic!("Input time is out of bounds!");
         }
-        DateTime{year:year as i32,month:month as u8,day:day as u8,hour:hour as u8,minute:minute as u8,second:second as u8,millis:0,macros:0,nanos:0}
+        DateTime{year:year as i32,month:month as u8,day:day as u8,hour:hour as u8,minute:minute as u8,second:second as u8,millis:0,macros:0,nanos:0, time_zone:0}
     }
 
     pub fn from_millis(time: i64) -> Self {
@@ -315,7 +338,7 @@ impl DateTime {
         }else{
             panic!("The input str {} is illegal!", &time);
         }
-        DateTime{year:vec_i32[0],month:vec_i32[1] as u8,day:vec_i32[2] as u8,hour:vec_i32[3] as u8,minute:vec_i32[4] as u8,second:vec_i32[5] as u8,millis:(vec_i32[6]/1_000_000) as u16,macros:((vec_i32[6]/1_000)%1_000) as u16,nanos:(vec_i32[6]%1_000) as u16}
+        DateTime{year:vec_i32[0],month:vec_i32[1] as u8,day:vec_i32[2] as u8,hour:vec_i32[3] as u8,minute:vec_i32[4] as u8,second:vec_i32[5] as u8,millis:(vec_i32[6]/1_000_000) as u16,macros:((vec_i32[6]/1_000)%1_000) as u16,nanos:(vec_i32[6]%1_000) as u16, time_zone:0}
     }
 }
 
