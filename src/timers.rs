@@ -17,6 +17,8 @@ impl Display for DateTime {
 
 impl DateTime {
 
+    #[inline]
+    #[doc(hidden)]
     fn check_time_zone(self, time_zone:i8) -> bool {
         match time_zone {
             x if -12<x && x<12 => true,
@@ -31,14 +33,14 @@ impl DateTime {
         }
     }
 
-    pub fn new(year:i32, month:u8, day:u8, hour:u8, minute:u8, second:u8, millis:u16, macros:u16, nanos:u16) -> Self {
-        DateTime{year, month, day, hour, minute, second, millis, macros, nanos, time_zone:0}
-    }
-
+    #[inline]
+    #[doc(hidden)]
     fn leap_year(_year:i32) -> bool {
         (_year%4==0 && _year%100!=0) || _year%400==0
     }
 
+    #[inline]
+    #[doc(hidden)]
     fn month_daily(_is_leap:bool) -> Vec<i8>{
         if _is_leap {
             vec![31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
