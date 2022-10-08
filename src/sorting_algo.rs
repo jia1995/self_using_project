@@ -2,7 +2,8 @@
 use std::fmt::Debug;
 
 /// Reversing the Vectors when parameter reverse is `true`.
-fn reversed<T:PartialOrd+Copy+Debug>(vecs: &mut Vec<T>, reverse:bool) ->&mut Vec<T> {
+#[inline]
+fn reversed<T:PartialOrd+Copy+Debug>(vecs: &mut [T], reverse:bool) ->&mut [T] {
     if reverse {
         vecs.reverse();
     }
@@ -10,7 +11,7 @@ fn reversed<T:PartialOrd+Copy+Debug>(vecs: &mut Vec<T>, reverse:bool) ->&mut Vec
 }
 
 /// Select sorting algorithm for Vectors.
-pub fn select_sort<T:PartialOrd+Copy+Debug>(vecs: &mut Vec<T>, reverse:bool) -> &mut Vec<T> {
+pub fn select_sort<T:PartialOrd+Copy+Debug>(vecs: &mut [T], reverse:bool) -> &mut [T] {
     let size = vecs.len();
     for i in 0..size {
         let mut index = i;
@@ -25,7 +26,8 @@ pub fn select_sort<T:PartialOrd+Copy+Debug>(vecs: &mut Vec<T>, reverse:bool) -> 
 }
 
 ///Iterators quick sorting algorithm for Vectors by left and right.
-fn sub_quick_sort<T:PartialOrd+Copy+Debug>(vecs:&mut Vec<T>, left:usize, right:usize){
+#[inline]
+fn sub_quick_sort<T:PartialOrd+Copy+Debug>(vecs:&mut [T], left:usize, right:usize){
     let mid = vecs[left];
     let (mut l, mut r) = (left, right);
     let mut flag:bool = true;
@@ -56,13 +58,13 @@ fn sub_quick_sort<T:PartialOrd+Copy+Debug>(vecs:&mut Vec<T>, left:usize, right:u
 }
 
 /// Quick sorting algorithm for Vectors.
-pub fn quick_sort<T:PartialOrd+Copy+Debug>(vecs: &mut Vec<T>, reverse:bool) -> &mut Vec<T> {
+pub fn quick_sort<T:PartialOrd+Copy+Debug>(vecs: &mut [T], reverse:bool) -> &mut [T] {
     sub_quick_sort(vecs, 0, vecs.len()-1);
     reversed(vecs, reverse)
 }
 
 /// Bubble sorting algorithm for Vectors.
-pub fn bubble_sort<T:PartialOrd+Copy+Debug>(vecs: &mut Vec<T>, reverse:bool) -> &mut Vec<T> {
+pub fn bubble_sort<T:PartialOrd+Copy+Debug>(vecs: &mut [T], reverse:bool) -> &mut [T] {
     let len = vecs.len();
     for i in 0..len-1 {
         for j in 0..len-1-i {
@@ -75,7 +77,8 @@ pub fn bubble_sort<T:PartialOrd+Copy+Debug>(vecs: &mut Vec<T>, reverse:bool) -> 
 }
 
 /// Merging sorting inplace.
-fn merge<T:PartialOrd+Copy+Debug>(vecs: &mut Vec<T>, left:usize, mid:usize, right:usize){
+#[inline]
+fn merge<T:PartialOrd+Copy+Debug>(vecs: &mut [T], left:usize, mid:usize, right:usize){
     let mut tmp = vec![];
     let (mut i, mut j) = (left,mid+1);
     while i != mid+1 && j!=right+1 {
@@ -101,7 +104,8 @@ fn merge<T:PartialOrd+Copy+Debug>(vecs: &mut Vec<T>, left:usize, mid:usize, righ
 }
 
 /// Sub merging sorting algorithm inplace.
-fn sub_merge_sort<T:PartialOrd+Copy+Debug>(vecs: &mut Vec<T>, left:usize, right:usize){
+#[inline]
+fn sub_merge_sort<T:PartialOrd+Copy+Debug>(vecs: &mut [T], left:usize, right:usize){
     let mid = (left+right)/2;
     if left  < right {
         sub_merge_sort(vecs, left, mid);
@@ -111,13 +115,13 @@ fn sub_merge_sort<T:PartialOrd+Copy+Debug>(vecs: &mut Vec<T>, left:usize, right:
 }
 
 /// Merge sorting algorithm for Vectors.
-pub fn merge_sort<T:PartialOrd+Copy+Debug>(vecs: &mut Vec<T>, reverse:bool) -> &mut Vec<T> {
+pub fn merge_sort<T:PartialOrd+Copy+Debug>(vecs: &mut [T], reverse:bool) -> &mut [T] {
     sub_merge_sort(vecs, 0, vecs.len()-1);
     reversed(vecs, reverse)
 }
 
 /// Insert sorting algorithm for Vectors.
-pub fn insert_sort<T:PartialOrd+Copy+Debug>(vecs: &mut Vec<T>, reverse:bool) -> &mut Vec<T> {
+pub fn insert_sort<T:PartialOrd+Copy+Debug>(vecs: &mut [T], reverse:bool) -> &mut [T] {
     let len = vecs.len();
     for i in 1..len {
         let k = vecs[i];
@@ -132,7 +136,8 @@ pub fn insert_sort<T:PartialOrd+Copy+Debug>(vecs: &mut Vec<T>, reverse:bool) -> 
 }
 
 /// Sub hill sorting algorithm inplace.
-fn sub_hill_sort<T:PartialOrd+Copy+Debug>(vecs: &mut Vec<T>, start:usize, gap:usize) {
+#[inline]
+fn sub_hill_sort<T:PartialOrd+Copy+Debug>(vecs: &mut [T], start:usize, gap:usize) {
     let len = vecs.len();
     for i in ((start+gap)..len).step_by(gap) {
         let n = vecs[i];
@@ -146,7 +151,7 @@ fn sub_hill_sort<T:PartialOrd+Copy+Debug>(vecs: &mut Vec<T>, start:usize, gap:us
 }
 
 /// Hill sorting algorithm for Vectors.
-pub fn hill_sort<T:PartialOrd+Copy+Debug>(vecs: &mut Vec<T>, reverse:bool) -> &mut Vec<T> {
+pub fn hill_sort<T:PartialOrd+Copy+Debug>(vecs: &mut [T], reverse:bool) -> &mut [T] {
     let len = vecs.len();
     let mut t = len/2;
     while t>0 {
