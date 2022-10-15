@@ -41,7 +41,7 @@ impl DateTime {
 
     #[inline]
     #[doc(hidden)]
-    fn month_daily(_is_leap:bool) -> Vec<i8>{
+    fn month_daily(_is_leap:bool) -> Vec<u8>{
         if _is_leap {
             vec![31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
         }else{
@@ -53,25 +53,26 @@ impl DateTime {
         if !self.check_time_zone(time_zone) {
             eprintln!("The time zone {} is illegal!", time_zone);
         }
-        let (mut _year,mut _month,mut _day,mut _hour) = (self.year, self.month as i8, self.day as i8, self.hour as i8);
-        let _is_leap = Self::leap_year(_year);
+        let _is_leap = Self::leap_year(self.year);
         let _month_day = Self::month_daily(_is_leap);
+        let mut _hour = self.hour as i8;
         if time_zone < 0 {
             _hour += time_zone-self.time_zone;
             let mut _minus_one = 0;
             if _hour < 0 {
                 _minus_one = 1;
                 _hour += 24;
+                self.hour = _hour as u8;
             }
-            _day -= _minus_one;
-            if _day < 1 {
-                _month -= 1;
-                if _month < 1{
-                    _day = _month_day[11 as usize];
-                    _month = 12;
-                    _year -= 1;
+            self.day -= _minus_one;
+            if self.day < 1 {
+                self.month -= 1;
+                if self.month < 1{
+                    self.day = _month_day[11 as usize];
+                    self.month = 12;
+                    self.year -= 1;
                 } else{
-                    _day = _month_day[(_month-2) as usize];
+                    self.day = _month_day[(self.month-2) as usize];
                 }
             }
         } else {
@@ -79,22 +80,18 @@ impl DateTime {
             let mut _add_one = 0;
             if _hour >= 24 {
                 _add_one =1;
-                _hour %= 24;
+                self.hour = (_hour%24) as u8;
             }
-            _day += _add_one;
-            if _day > _month_day[(_month-1) as usize] {
-                _day = 1;
-                _month += 1;
+            self.day += _add_one;
+            if self.day > _month_day[(self.month-1) as usize] {
+                self.day = 1;
+                self.month += 1;
             }
-            if _month > 12 {
-                _year += 1;
-                _month = 1;
+            if self.month > 12 {
+                self.year += 1;
+                self.month = 1;
             }
         }
-        self.year=_year;
-        self.month = _month as u8;
-        self.day = _day as u8;
-        self.hour = _hour as u8;
         self.time_zone = time_zone;
     }
 
